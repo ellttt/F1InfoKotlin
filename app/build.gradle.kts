@@ -11,7 +11,7 @@ android {
     compileSdk = 32
     defaultConfig {
         applicationId = "com.example.f1infokotlin"
-        minSdk = 21
+        minSdk = 26
         targetSdk = 32
         versionCode = 1
         versionName = "1.0"

@@ -1,17 +1,19 @@
 package com.example.f1infokotlin
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,15 +26,16 @@ import androidx.compose.ui.unit.*
 import androidx.lifecycle.SavedStateHandle
 import com.example.f1infokotlin.apiWork.Api
 import com.example.f1infokotlin.apiWork.Repository
+import com.example.f1infokotlin.objects.DisplayData
 import com.example.f1infokotlin.objects.DriverStanding
 import com.example.f1infokotlin.objects.DriverStandings
-import com.example.f1infokotlin.ui.theme.F1InfoKotlinTheme
-import com.example.f1infokotlin.ui.theme.MyViewModel
-import com.example.f1infokotlin.ui.theme.greenColor
+import com.example.f1infokotlin.ui.theme.*
 import com.google.accompanist.pager.*
 import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalPagerApi::class)
@@ -45,7 +48,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                   TabLayout()
+                    TabLayout()
                 }
             }
         }
@@ -82,7 +85,7 @@ fun Greeting(name: String) {
 fun TabLayout() {
 
     val coroutineScope = rememberCoroutineScope()
-    val viewModel = remember{ MyViewModel(coroutineScope, Repository(), SavedStateHandle()) }
+    val viewModel = remember { MyViewModel(coroutineScope, Repository(), SavedStateHandle()) }
 
     // on below line we are creating variable for pager state.
     val pagerState = rememberPagerState(pageCount = 3)
@@ -220,14 +223,16 @@ fun Tabs(pagerState: PagerState) {
 fun TabsContent(pagerState: PagerState, viewModel: MyViewModel) {
     // on below line we are creating
     // horizontal pager for our tab layout.
-    HorizontalPager(state = pagerState) {
-        // on below line we are specifying
-        // the different pages.
-            page ->
+    HorizontalPager(state = pagerState) { page ->
         when (page) {
-            0 -> TestDataV2(listODriverStanding = viewModel.uiState.dataToDisplayOnScreen)
-            1 -> TabContentScreen(data = "Welcome to Shopping Screen")
-            2 -> TabContentScreen(data = "Welcome to Settings Screen")
+            0 -> driverDisplay(listODriverStanding = viewModel.uiState.driverDataToDisplayOnScreen)
+            1 -> constructorDisplay(listOConstructorStanding = viewModel.uiState.constructorDataToDisplayOnScreen)
+            2 -> scheduleDisplay(listOSchedule = viewModel.uiState.scheduleDataToDisplayOnScreen)
+            else -> null
+        }?.let {
+//            CollapsableLazyColumn(listOf(CollapsableSection("title", listOf("a","b","c")),
+//                CollapsableSection("title2", listOf("a2","b2","c2"))))
+            CollapsableLazyColumn(it)
         }
     }
 }
@@ -265,37 +270,107 @@ fun TabContentScreen(data: String) {
 }
 
 @Composable
-fun TestDataV2(listODriverStanding: List<DriverStanding>) {
-    Column(
+fun DisplayListOfThree(list: List<String>) {
+    Log.d("My Tag toDisplay", list[1])
+
+    Row(
         Modifier
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 25.dp, vertical = 20.dp)
     ) {
-        listODriverStanding.forEach {
-            Row(
-                Modifier
-                    .padding(horizontal = 25.dp, vertical = 20.dp)
-            ) {
-                Text(text = it.Driver.familyName)
-                Spacer(Modifier.weight(1f))
-                Text(text=it.points)
+        Text(text = list[0])
+        Spacer(Modifier.weight(1f))
+        Text(text = list[1])
+        Spacer(Modifier.weight(1f))
+        Text(text = list[2])
+    }
+}
+
+@Composable
+fun CollapsableLazyColumn(
+    sections: List<DisplayData>,
+    modifier: Modifier = Modifier,
+) {
+    val collapsedState = remember(sections) { sections.map { true }.toMutableStateList() }
+    LazyColumn(modifier) {
+        sections.forEachIndexed { i, dataItem ->
+            Log.d("My Tag dataItem", dataItem.toString())
+            val collapsable: Boolean = dataItem.rows.isNotEmpty()
+            val collapsed = collapsedState[i]
+            item(key = "header_$i") {
+                if (!collapsable) {
+                    DisplayListOfThree(list = dataItem.stats)
+                } else {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .clickable {
+                                collapsedState[i] = !collapsed
+                            }
+                    ) {
+                        Icon(
+                            Icons.Default.run {
+                                if (collapsed)
+                                    KeyboardArrowDown
+                                else
+                                    KeyboardArrowUp
+                            },
+                            contentDescription = "",
+                            tint = Color.LightGray,
+                        )
+//                        Text(
+//                            dataItem.stats[0],
+//                            fontWeight = FontWeight.Bold,
+//                            modifier = Modifier
+//                                .padding(vertical = 10.dp)
+//                                .weight(1f)
+//                        )
+                        DisplayListOfThree(list = dataItem.stats)
+                    }
+                }
+                Divider()
+            }
+            if (collapsable && !collapsed) {
+                items(dataItem.rows) { row ->
+                    Row {
+                        Spacer(modifier = Modifier.size(MaterialIconDimension.dp))
+//                        Text(
+//                            row.name,
+//                            modifier = Modifier
+//                                .padding(vertical = 10.dp)
+//                        )
+                     val local = row.dateTime
+                            .withZoneSameInstant(ZoneId.of("America/New_York"))
+                        DisplayListOfThree(
+                            list = listOf(
+                                local.format(DateTimeFormatter.ofPattern("MM/dd")),
+                                row.name,
+                                local.format(DateTimeFormatter.ofPattern("HH:mm"))
+                            )
+                        )
+                    }
+                    Divider()
+                }
             }
         }
     }
 }
 
 
+
+const val MaterialIconDimension = 24f
+
+
 @Composable
-fun TestData(api: Api){
+fun TestData(api: Api) {
     val cScope = rememberCoroutineScope()
     var obj: List<DriverStanding> by remember {
         mutableStateOf(emptyList())
     }
-    LaunchedEffect(key1 = true){
-        var myVariable: String;
+    LaunchedEffect(key1 = true) {
         cScope.launch {
-            myVariable = api.getDriverStandings()
-            obj = Json.decodeFromString<DriverStandings>(myVariable).MRData.StandingsTable.StandingsLists[0].DriverStandings
+            val myVariable = api.getDriverStandings()
+            obj =
+                Json.decodeFromString<DriverStandings>(myVariable).MRData.StandingsTable.StandingsLists[0].DriverStandings
 //            Log.d("myTage", obj.StandingsTable.toString())
         }
     }
@@ -310,14 +385,12 @@ fun TestData(api: Api){
                 Modifier
                     .padding(horizontal = 25.dp, vertical = 20.dp)
             ) {
-                Text(text = it.Driver.familyName)
+                Text(text = it.driver.familyName)
                 Spacer(Modifier.weight(1f))
-                Text(text=it.points)
+                Text(text = it.points)
             }
         }
     }
-
-
 }
 
 
