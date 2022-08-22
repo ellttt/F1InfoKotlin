@@ -7,4 +7,11 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="mclaren_black">#232221</color>
+    <color name="mclaren_grey">#364147</color>
+    <color name="mclaren_ltgrey">#71828C</color>
+    <color name="mclaren_blue">#9BC6DD</color>
+    <color name="mclaren_ltblue">#F2FAFC</color>
+    <color name="mclaren_orange">#FF783716</color>
+    <color name="mclaren_ltorange">#FB6100</color>
 </resources>

@@ -4,13 +4,10 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -18,6 +15,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -46,7 +46,7 @@ class MainActivity : ComponentActivity() {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
+                    color = mclaren_blue
                 ) {
                     TabLayout()
                 }
@@ -93,11 +93,11 @@ fun TabLayout() {
     // on below line we are creating a column for our widgets.
     Column(
         // for column we are specifying modifier on below line.
-        modifier = Modifier.background(Color.White)
+        modifier = Modifier.background(mclaren_blue)
     ) {
         // on the below line we are specifying the top app bar
         // and specifying background color for it.
-        TopAppBar(backgroundColor = greenColor) {
+        TopAppBar(backgroundColor = mclaren_orange) {
             // on below line we are specifying a column
             // for our text view to display a text
             // in our top app bar.
@@ -111,8 +111,8 @@ fun TabLayout() {
                 // on below line we are specifying a text and
                 // specifying a text as "Tab Layout Example"
                 Text(
-                    text = "Tab Layout Example",
-                    style = TextStyle(color = Color.White),
+                    text = "F1 Info",
+                    style = TextStyle(color = mclaren_ltblue),
                     fontWeight = FontWeight.Bold,
                     fontSize = TextUnit(
                         18F,
@@ -143,10 +143,34 @@ fun Tabs(pagerState: PagerState) {
     // in this function we are creating a list
     // in this list we are specifying data as
     // name of the tab and the icon for it.
-    val list = listOf(
-        "Drivers" to Icons.Default.Home,
-        "Teams" to Icons.Default.ShoppingCart,
-        "Schedule" to Icons.Default.Settings
+    val list: List<Pair<String, @Composable (() -> Unit)>> = listOf(
+        "Drivers" to run {
+            {
+                Icon(
+                    painter = painterResource(id = R.drawable.helmet),
+                    contentDescription = null,
+                    Modifier.size(30.dp)
+                )
+            }
+        },
+        "Teams" to run {
+            {
+                Icon(
+                    painter = painterResource(id = R.drawable.racecar_opt2),
+                    contentDescription = null,
+                    Modifier.size(30.dp)
+                )
+            }
+        },
+        "Schedule" to run {
+            {
+                Icon(
+                    painter = painterResource(id = R.drawable.calendar),
+                    contentDescription = null, // decorative element
+                    Modifier.size(30.dp)
+                )
+            }
+        },
     )
     // on below line we are creating
     // a variable for the scope.
@@ -160,10 +184,12 @@ fun Tabs(pagerState: PagerState) {
 
         // on below line we are
         // specifying background color.
-        backgroundColor = greenColor,
+//        backgroundColor = Color(R.color.mclaren_orange),
+        backgroundColor = mclaren_ltorange,
+
 
         // on below line we are specifying content color.
-        contentColor = Color.White,
+//        contentColor = Color.White,
 
         // on below line we are specifying
         // the indicator for the tab
@@ -174,7 +200,7 @@ fun Tabs(pagerState: PagerState) {
             TabRowDefaults.Indicator(
                 Modifier.pagerTabIndicatorOffset(pagerState, tabPositions),
                 height = 2.dp,
-                color = Color.White
+                color = mclaren_ltblue
             )
         }
     ) {
@@ -187,7 +213,8 @@ fun Tabs(pagerState: PagerState) {
                 // for each tab item and we are calling
                 // image from the list which we have created.
                 icon = {
-                    Icon(imageVector = list[index].second, contentDescription = null)
+                    list[index].second()
+//                    Icon(imageVector = list[index].second, contentDescription = null)
                 },
                 // on below line we are specifying the text for
                 // the each tab item and we are calling data
@@ -197,7 +224,7 @@ fun Tabs(pagerState: PagerState) {
                         list[index].first,
                         // on below line we are specifying the text color
                         // for the text in that tab
-                        color = if (pagerState.currentPage == index) Color.White else Color.LightGray
+                        color = if (pagerState.currentPage == index) mclaren_ltblue else mclaren_ltgrey
                     )
                 },
                 // on below line we are specifying
@@ -214,6 +241,11 @@ fun Tabs(pagerState: PagerState) {
             )
         }
     }
+}
+
+@Composable
+fun tester() {
+
 }
 
 // on below line we are creating a tab content method
@@ -258,7 +290,7 @@ fun TabContentScreen(data: String) {
             style = MaterialTheme.typography.h5,
 
             // on below line we are specifying the text color
-            color = greenColor,
+            color = mclaren_orange,
 
             // on below line we are specifying the font weight
             fontWeight = FontWeight.Bold,
@@ -315,7 +347,7 @@ fun CollapsableLazyColumn(
                                     KeyboardArrowUp
                             },
                             contentDescription = "",
-                            tint = Color.LightGray,
+//                            tint = Color.LightGray,
                         )
 //                        Text(
 //                            dataItem.stats[0],
