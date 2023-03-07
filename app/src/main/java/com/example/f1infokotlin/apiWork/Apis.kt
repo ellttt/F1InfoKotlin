@@ -1,5 +1,6 @@
 package com.example.f1infokotlin.apiWork
 
+import com.example.f1infokotlin.YEAR_FOR_DATA
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -10,10 +11,10 @@ class Api {
     private val client = HttpClient()
 
     suspend fun getDriverStandings(): String =
-        client.get("$GH_BASE_URL/2022/driverStandings.json").body()
+        client.get("$GH_BASE_URL/$YEAR_FOR_DATA/driverStandings.json").body()
 
     suspend fun getConstructorStandings(): String =
-        client.get("$GH_BASE_URL/2022/constructorStandings.json").body()
+        client.get("$GH_BASE_URL/$YEAR_FOR_DATA/constructorStandings.json").body()
 
     suspend fun getSchedule():String =
         client.get("$GH_BASE_URL/current.json").body()
