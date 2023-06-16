@@ -34,7 +34,9 @@ import com.google.accompanist.pager.*
 import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 class MainActivity : ComponentActivity() {
@@ -88,7 +90,7 @@ fun TabLayout() {
     val viewModel = remember { MyViewModel(coroutineScope, Repository(), SavedStateHandle()) }
 
     // on below line we are creating variable for pager state.
-    val pagerState = rememberPagerState(pageCount = 3)
+    val pagerState = rememberPagerState(pageCount = 4)
 
     // on below line we are creating a column for our widgets.
     Column(
@@ -137,6 +139,7 @@ fun TabLayout() {
 
 // on below line we are
 // creating a function for tabs
+@OptIn(ExperimentalUnitApi::class)
 @ExperimentalPagerApi
 @Composable
 fun Tabs(pagerState: PagerState) {
@@ -169,6 +172,15 @@ fun Tabs(pagerState: PagerState) {
                     contentDescription = null, // decorative element
                     Modifier.size(30.dp)
                 )
+            }
+        },
+        "Current" to run {
+            {
+//                Icon(
+//                    painter = painterResource(id = R.drawable.calendar),
+//                    contentDescription = null, // decorative element
+//                    Modifier.size(30.dp)
+//                )
             }
         },
     )
@@ -222,6 +234,10 @@ fun Tabs(pagerState: PagerState) {
                 text = {
                     Text(
                         list[index].first,
+                        fontSize = TextUnit(
+                            10F,
+                            TextUnitType.Sp
+                        ),
                         // on below line we are specifying the text color
                         // for the text in that tab
                         color = if (pagerState.currentPage == index) mclaren_ltblue else mclaren_ltgrey
@@ -260,6 +276,7 @@ fun TabsContent(pagerState: PagerState, viewModel: MyViewModel) {
             0 -> driverDisplay(listODriverStanding = viewModel.uiState.driverDataToDisplayOnScreen)
             1 -> constructorDisplay(listOConstructorStanding = viewModel.uiState.constructorDataToDisplayOnScreen)
             2 -> scheduleDisplay(listOSchedule = viewModel.uiState.scheduleDataToDisplayOnScreen)
+            3 -> driverDisplay(listODriverStanding = viewModel.uiState.driverDataToDisplayOnScreen)
             else -> null
         }?.let {
 //            CollapsableLazyColumn(listOf(CollapsableSection("title", listOf("a","b","c")),
@@ -332,23 +349,32 @@ fun CollapsableLazyColumn(
                 if (!collapsable) {
                     DisplayListOfThree(list = dataItem.stats)
                 } else {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .clickable {
-                                collapsedState[i] = !collapsed
-                            }
-                    ) {
-                        Icon(
-                            Icons.Default.run {
-                                if (collapsed)
-                                    KeyboardArrowDown
-                                else
-                                    KeyboardArrowUp
-                            },
-                            contentDescription = "",
+//                    if (i == 1){
+//                        Log.d("rawe ceek", (ZonedDateTime.now()==dataItem.rows[5].dateTime).toString())
+//                        myModifier = Modifier
+//                            .clickable {
+//                                collapsedState[i] = !collapsed
+//                            }//.background(mclaren_ltblue)
+//                    }else {
+                    val myModifier: Modifier = Modifier
+                                .clickable {
+                                    collapsedState[i] = !collapsed
+                                }
+//                    }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = myModifier
+                        ) {
+                            Icon(
+                                Icons.Default.run {
+                                    if (collapsed)
+                                        KeyboardArrowDown
+                                    else
+                                        KeyboardArrowUp
+                                },
+                                contentDescription = "",
 //                            tint = Color.LightGray,
-                        )
+                            )
 //                        Text(
 //                            dataItem.stats[0],
 //                            fontWeight = FontWeight.Bold,
@@ -356,8 +382,9 @@ fun CollapsableLazyColumn(
 //                                .padding(vertical = 10.dp)
 //                                .weight(1f)
 //                        )
-                        DisplayListOfThree(list = dataItem.stats)
-                    }
+                            DisplayListOfThree(list = dataItem.stats)
+                        }
+
                 }
                 Divider()
             }
