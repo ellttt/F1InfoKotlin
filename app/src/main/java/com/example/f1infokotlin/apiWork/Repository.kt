@@ -25,4 +25,7 @@ class Repository {
     suspend fun getSchedule(): MasterSchedule =
         Json.decodeFromString(api.getSchedule())
 
+//    suspend fun getNextRound(): RaceResults =
+//        Json.decodeFromString(api.getNextRound())
+
 }

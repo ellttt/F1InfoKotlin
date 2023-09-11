@@ -19,6 +19,9 @@ class Api {
     suspend fun getSchedule():String =
         client.get("$GH_BASE_URL/current.json").body()
 
+    suspend fun getNextRound():String =
+        client.get("$GH_BASE_URL/current/next/results.json").body()
+
     suspend fun getSchoolDeptsMapFromGit(): String =
         client.get("$GH_BASE_URL/json-data/schoolDeptsMap.json").body()
 
